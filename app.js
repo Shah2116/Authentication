@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const env = require("dotenv");
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption");
 
 const app = express();
 
