@@ -4,7 +4,10 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const env = require("dotenv");
 const mongoose = require("mongoose");
-const md5 = require("md5");
+// Hashing password
+// const md5 = require("md5");
+// Hashing and Salting password
+const bcrypt = require("bcrypt");
 
 const app = express();
 
@@ -31,27 +34,31 @@ app.get("/register", (req, res)=>{
 });
 
 app.post("/register", (req, res) =>{
-    const newUser = new User ({
-        email : req.body.username,
-        password :md5(req.body.password)
+    bcrypt.hash(req.body.password, 10).then(function(hash) {
+        const newUser = new User ({
+            email : req.body.username,
+            password :hash
+        });
+        newUser.save().then(() =>{
+            res.render(`secrets`);
+        }).catch((err) =>{
+            console.log("no connection");
+        })
     });
-    newUser.save().then(() =>{
-        res.render(`secrets`);
-    }).catch((err) =>{
-        console.log("no connection");
-    })
+  
     });
      
     app.post("/login", (req, res)=> {
      const username = req.body.username;
-     const password = md5(req.body.password);
+     const password = req.body.password;
      User.findOne({email:username}).then((userExits)=>{
         if(userExits){
-            if(userExits.password === password){
+            bcrypt.compare(req.body.password, userExits.password).then(function(result) {
                 res.render(`secrets`);
-            }else {
+            }).catch((err) =>{
                 console.log("passward is invalid");
-            }
+            });
+
         }
 
      }).catch((err) =>{
