@@ -52,15 +52,13 @@ app.post("/register", (req, res) =>{
      const username = req.body.username;
      const password = req.body.password;
      User.findOne({email:username}).then((userExits)=>{
-        if(userExits){
-            bcrypt.compare(req.body.password, userExits.password).then(function(result) {
-                res.render(`secrets`);
+        if(userExits)
+            bcrypt.compare(req.body.password, userExits.password).then(function(result){
+                if(result === true )
+                    res.render(`secrets`);
             }).catch((err) =>{
                 console.log("passward is invalid");
             });
-
-        }
-
      }).catch((err) =>{
         res.status(100).send("Invalid data");
      });
